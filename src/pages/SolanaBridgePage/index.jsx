@@ -353,7 +353,6 @@ export function SolanaBridgePage() {
     toTokenIndex,
     walletAddress,
   ]);
-
   return (
     <>
       <div className="flex flex-col h-full">
@@ -669,12 +668,12 @@ export function SolanaBridgePage() {
               ) : (
                 <Button
                   type={3}
-                  className="mx-auto w-full"
+                  className={walletAddress ?"mx-auto w-full !bg-grey-light !text-white" :"mx-auto w-full"}
                   onClick={showConnectModal}
                   disabled={!!walletAddress}
                 >
-                  <ConnectSvg />
-                  Connect Wallet
+                {!walletAddress ? <> <ConnectSvg />  Connect Wallet </>  : <>Connected</>}
+                 
                 </Button>
               )}
               <div className="flex flex-col gap-[8px]">
