@@ -250,11 +250,13 @@ export function SolanaBridgePage() {
     run: approveTransaction,
     success: txnSuccess,
     error: errorApprovingTransaction,
+    resetError,
     loading: isApprovingTransaction,
     fromChainTxnHash,
   } = useApproveTransaction();
 
   const { getNetworkId, setWalletNetwork,networkChanged,networkChangeError}  = useNetworkSelector();
+
 
   const {
     status: swapStatus,
@@ -317,6 +319,9 @@ export function SolanaBridgePage() {
   const handleResetSwap = () => {
     resetQuote();
     resetSwapStatus();
+    resetError("");
+    setFromChainIndex(0);
+    setFromTokenIndex(1);
   };
 
   useEffect(()=>{

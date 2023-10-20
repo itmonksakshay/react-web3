@@ -58,5 +58,5 @@ export function useApproveTransaction() {
     [provider]
   );
 
-  return { run, error, success, loading, fromChainTxnHash };
+  return { run, error, success, loading, fromChainTxnHash,resetError:setError };
 }

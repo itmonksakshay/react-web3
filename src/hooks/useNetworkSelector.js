@@ -17,15 +17,11 @@ export default function useNetworkSelector(){
     const setWalletNetwork = useCallback(async(chainId)=>{
 
         try{
-
+            setNetworkError(false);
+            setNetworkStatus(false);
             await provider.send('wallet_switchEthereumChain',[{ chainId:ethers.utils.hexlify(chainId)}]);
             provider.on("network", (newNetwork, oldNetwork) => {
-                // When a Provider makes its initial connection, it emits a "network"
-                // event with a null oldNetwork along with the newNetwork. So, if the
-                // oldNetwork exists, it represents a changing network
-                console.log(newNetwork,'newNetwork');
                 if (oldNetwork) {
-                    console.log(oldNetwork,'oldNetwork');
                     window.location.reload();
                 }
             });
