@@ -1,0 +1,207 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  @font-face {
+    font-family: "Tactic Round";
+    src: url("assets/fonts/tactic-round/Tactic\ Round\ Thn.ttf")
+      format("truetype");
+    font-weight: 100;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Tactic Round";
+    src: url("assets/fonts/tactic-round/Tactic\ Round\ Lgt.ttf")
+      format("truetype");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Tactic Round";
+    src: url("assets/fonts/tactic-round/Tactic\ Round\ Reg.ttf")
+      format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Tactic Round";
+    src: url("assets/fonts/tactic-round/Tactic\ Round\ Med.ttf")
+      format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Tactic Round";
+    src: url("assets/fonts/tactic-round/Tactic\ Round\ Bld.ttf")
+      format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Tactic Round";
+    src: url("assets/fonts/tactic-round/Tactic\ Round\ Ult.ttf")
+      format("truetype");
+    font-weight: 800;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Tactic Round";
+    src: url("assets/fonts/tactic-round/Tactic\ Round\ Blk.ttf")
+      format("truetype");
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Aeroport";
+    src: url("assets/fonts/aeroport/Aeroport.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Aeroport";
+    src: url("assets/fonts/aeroport/Aeroport-Italic.ttf") format("truetype");
+    font-weight: 400;
+    font-style: italic;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Aeroport";
+    src: url("assets/fonts/aeroport/Aeroport-Bold.ttf") format("truetype");
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Aeroport";
+    src: url("assets/fonts/aeroport/Aeroport-BoldItalic.ttf") format("truetype");
+    font-weight: 700;
+    font-style: italic;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Aeroport";
+    src: url("assets/fonts/aeroport/Aeroport-Light.ttf") format("truetype");
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Aeroport";
+    src: url("assets/fonts/aeroport/Aeroport-LightItalic.ttf")
+      format("truetype");
+    font-weight: 300;
+    font-style: italic;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Aeroport";
+    src: url("assets/fonts/aeroport/Aeroport-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Aeroport";
+    src: url("assets/fonts/aeroport/Aeroport-MediumItalic.ttf")
+      format("truetype");
+    font-weight: 500;
+    font-style: italic;
+    font-display: swap;
+  }
+  @font-face {
+    font-family: "Aeroport Mono";
+    src: url("assets/fonts/aeroport/AeroportMono.ttf") format("truetype");
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+}
+
+@layer utilities {
+  * {
+    @apply box-border;
+  }
+
+  html {
+    /* @apply md:!text-xs xl:!text-sm xxl:!text-base; */
+    @apply h-full;
+  }
+
+  body {
+    @apply !font-body;
+    @apply font-medium;
+    @apply !text-grey-dark;
+    @apply leading-[1.1];
+    @apply h-full;
+    @apply bg-cover;
+    @apply dark:bg-grey-dark;
+    @apply transition-all;
+    @apply duration-300;
+    background-image: url(assets/img/bg-texture.png);
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    /* box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.3); */
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    /* outline: 1px solid slategrey; */
+  }
+
+  ul li {
+    @apply !m-0;
+  }
+
+  div#root {
+    @apply h-full;
+  }
+
+  p {
+    @apply font-body;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-caption;
+  }
+}
+
+:root {
+  --main-color: rgb(104, 117, 217);
+  --main-color-hover: rgb(104, 117, 217, 0.2);
+  --track-color: #ddd;
+}
+
+/* Custom CSS styles for react-slider */
+.slider .thumb {
+  width: 0;
+}
+
+.slider .thumb:active,
+.slider .thumb:focus {
+  outline: none;
+}
