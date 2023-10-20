@@ -31,25 +31,25 @@ import { TokenSelectControl } from "./components/TokenSelectControl";
 import { TokenSelectModal } from "./components/TokenSelectModal";
 import { TooltipContainer } from "src/components/Tooltip";
 
-const infoList = [
-  {
+const infoList = {
+  transferFee: {
     label: "Transfer Fee",
     value: "0.000075 ETH",
     tooltip:
       "Transferring funds between wallets, especially across different blockchains, incurs a fee. This fee varies based on network conditions and specific blockchain factors. Check and confirm fees before transferring",
   },
-  {
+  gasFee: {
     label: "Gas Fee",
     value: "$0",
     tooltip: "Gas Fee: A fee you pay for blockchain transaction processing.",
   },
-  {
+  estimateTime: {
     label: "Estimated Time",
     value: "18 min",
     tooltip:
       "Time given is a rough estimate and may vary based on individual pace.",
-  },
-];
+  }
+}
 
 const fromTokenData = [
   // Ethereum
@@ -229,6 +229,8 @@ export function SolanaBridgePage() {
 
   const toAddressInputRef = useRef(null);
 
+  const [quoteInfo, setQuoteInfo] = useState(infoList);
+
   const {
     data: quote,
     run: fetchQuote,
@@ -252,9 +254,6 @@ export function SolanaBridgePage() {
   } = useSwapStatus({
     txnHash: txnSuccess ? fromChainTxnHash : "",
   });
-
-  console.log("swap status:", swapStatus);
-  console.log("swap substatus:", swapSubstatus);
 
   const showConnectModal = () => showModal(ModalType.ConnectModal);
   const handleDisconnect = () => {
@@ -302,6 +301,27 @@ export function SolanaBridgePage() {
   };
 
   useEffect(() => {
+
+    if (quote) {
+      const gasCost = quote?.estimate?.gasCosts[0]?.amountUSD || 0;
+      const amount = ethers.BigNumber.from(quote?.estimate?.gasCosts[0]?.amount);
+      const coinSymbol = quote?.estimate?.gasCosts[0]?.token?.symbol || 'ETH'
+
+      const transferFee = ethers.utils.formatUnits(amount, quote?.estimate?.gasCosts[0]?.token?.decimals || 18);
+      const estimateTime = Number(quote?.estimate?.executionDuration || 1) / 60;
+ 
+      setQuoteInfo((value) => ({ ...value, 
+        gasFee: { ...value.gasFee, value: `$${gasCost}` }, 
+        transferFee: { ...value.transferFee, value: `${transferFee.substring(0,8)} ${coinSymbol}` }, 
+        estimateTime: {...value.estimateTime,value: `${Math.floor(estimateTime)} mins`}
+      }))
+    }
+
+  }, [quote])
+
+
+
+  useEffect(() => {
     if (!walletAddress) return;
     closeModal();
   }, [closeModal, walletAddress]);
@@ -313,7 +333,6 @@ export function SolanaBridgePage() {
       return;
     } else setSolanaAddressError(false);
     resetQuote();
-    console.log("debounced from amount:", debouncedFromAmount);
     fetchQuote({
       fromAmount: debouncedFromAmount,
       fromChain: fromTokenData[fromChainIndex].chainSymbol,
@@ -367,9 +386,9 @@ export function SolanaBridgePage() {
             )}
             <div className="flex flex-col gap-[17px]">
               {swapStatus === SwapStatus.DONE ||
-              swapStatus === SwapStatus.FAILED ||
-              swapStatus === SwapStatus.INVALID ||
-              swapStatus === SwapStatus.NOT_FOUND ? (
+                swapStatus === SwapStatus.FAILED ||
+                swapStatus === SwapStatus.INVALID ||
+                swapStatus === SwapStatus.NOT_FOUND ? (
                 <>
                   <div className="flex items-center">
                     <AssetWithChain
@@ -418,10 +437,10 @@ export function SolanaBridgePage() {
                       <p className="font-caption text-[20px] leading-[1.14] text-grey-black">
                         {quote?.estimate?.toAmount
                           ? ethers.utils.formatUnits(
-                              quote?.estimate?.toAmount,
-                              toTokenData[toChainIndex].tokens[toTokenIndex]
-                                .decimals
-                            )
+                            quote?.estimate?.toAmount,
+                            toTokenData[toChainIndex].tokens[toTokenIndex]
+                              .decimals
+                          )
                           : ""}
                       </p>
                       <p className="font-normal text-[12px] leading-[1.25] text-grey-deep">
@@ -502,11 +521,10 @@ export function SolanaBridgePage() {
                       </p>
                       {showingToAddressInput ? (
                         <div
-                          className={`flex items-center gap-[4px] h-[29px] px-[8px] rounded-[8px] border-[1px] bg-grey-lighter10 ${
-                            WAValidator.validate(toAddress, "Solana")
-                              ? "border-yellow-dark"
-                              : "border-red-light bg-red-mild"
-                          }`}
+                          className={`flex items-center gap-[4px] h-[29px] px-[8px] rounded-[8px] border-[1px] bg-grey-lighter10 ${WAValidator.validate(toAddress, "Solana")
+                            ? "border-yellow-dark"
+                            : "border-red-light bg-red-mild"
+                            }`}
                         >
                           <ConnectedSvg width={16.22} />
                           {/* <p className="font-normal text-[12px] leading-[1.25] text-grey-dark">
@@ -548,10 +566,10 @@ export function SolanaBridgePage() {
                         value={
                           quote?.estimate?.toAmount
                             ? ethers.utils.formatUnits(
-                                quote?.estimate?.toAmount,
-                                toTokenData[toChainIndex].tokens[toTokenIndex]
-                                  .decimals
-                              )
+                              quote?.estimate?.toAmount,
+                              toTokenData[toChainIndex].tokens[toTokenIndex]
+                                .decimals
+                            )
                             : ""
                         }
                         isLoading={isFetchingQuote}
@@ -587,13 +605,13 @@ export function SolanaBridgePage() {
             {(swapStatus === SwapStatus.FAILED ||
               swapStatus === SwapStatus.INVALID ||
               swapStatus === SwapStatus.NOT_FOUND) && (
-              <ErrorBox
-                title={"Something went wrong"}
-                body={
-                  "No funds were debited. Please verify the transaction<br>details and try again. <a class='underline'>Click here to read a report</a>"
-                }
-              />
-            )}
+                <ErrorBox
+                  title={"Something went wrong"}
+                  body={
+                    "No funds were debited. Please verify the transaction<br>details and try again. <a class='underline'>Click here to read a report</a>"
+                  }
+                />
+              )}
             {errorApprovingTransaction && (
               <ErrorBox
                 title={"Transaction Not Approved"}
@@ -636,7 +654,7 @@ export function SolanaBridgePage() {
                   disabled={isApprovingTransaction}
                 >
                   {isApprovingTransaction ||
-                  swapStatus === SwapStatus.PENDING ? (
+                    swapStatus === SwapStatus.PENDING ? (
                     <>
                       Transaction Pending
                       <Loader.MoonLoader color="black" size={24} />
@@ -660,21 +678,19 @@ export function SolanaBridgePage() {
                 </Button>
               )}
               <div className="flex flex-col gap-[8px]">
-                {infoList.map(({ label, value, tooltip }) => (
-                  <div key={label} className="flex items-center">
-                    <TooltipContainer tooltipContent={tooltip}>
-                      <div className="flex items-center group">
-                        <p className="text-grey-deep text-[12px] leading-[1.25] font-normal group-hover:text-grey-black cursor-default">
-                          {label}
-                        </p>
-                        <InfoSvg className="ml-[4.83px] stroke-grey-deep group-hover:stroke-grey-black" />
-                      </div>
-                    </TooltipContainer>
-                    <p className="text-grey-black text-[12px] leading-[1.25] font-normal ml-auto">
-                      {value}
-                    </p>
-                  </div>
-                ))}
+                {Object.entries(quoteInfo).map(([key, { value, tooltip, label }]) => (<div key={label} className="flex items-center">
+                  <TooltipContainer tooltipContent={tooltip}>
+                    <div className="flex items-center group">
+                      <p className="text-grey-deep text-[12px] leading-[1.25] font-normal group-hover:text-grey-black cursor-default">
+                        {label}
+                      </p>
+                      <InfoSvg className="ml-[4.83px] stroke-grey-deep group-hover:stroke-grey-black" />
+                    </div>
+                  </TooltipContainer>
+                  <p className="text-grey-black text-[12px] leading-[1.25] font-normal ml-auto">
+                    {value}
+                  </p>
+                </div>))}
               </div>
             </div>
           </div>
