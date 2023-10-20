@@ -300,6 +300,10 @@ export function SolanaBridgePage() {
     resetSwapStatus();
   };
 
+  useEffect(()=>{
+      if(swapStatus === SwapStatus.DONE) handleResetSwap();
+  },[swapStatus])
+
   useEffect(() => {
 
     if (quote) {
@@ -309,11 +313,12 @@ export function SolanaBridgePage() {
 
       const transferFee = ethers.utils.formatUnits(amount, quote?.estimate?.gasCosts[0]?.token?.decimals || 18);
       const estimateTime = Number(quote?.estimate?.executionDuration || 1) / 60;
- 
-      setQuoteInfo((value) => ({ ...value, 
-        gasFee: { ...value.gasFee, value: `$${gasCost}` }, 
-        transferFee: { ...value.transferFee, value: `${transferFee.substring(0,8)} ${coinSymbol}` }, 
-        estimateTime: {...value.estimateTime,value: `${Math.floor(estimateTime)} mins`}
+
+      setQuoteInfo((value) => ({
+        ...value,
+        gasFee: { ...value.gasFee, value: `$${gasCost}` },
+        transferFee: { ...value.transferFee, value: `${transferFee.substring(0, 8)} ${coinSymbol}` },
+        estimateTime: { ...value.estimateTime, value: `${Math.floor(estimateTime)} mins` }
       }))
     }
 
@@ -613,7 +618,9 @@ export function SolanaBridgePage() {
               )}
             {errorApprovingTransaction && (
               <ErrorBox
-                title={"Transaction Not Approved"}
+                title={errorApprovingTransaction.includes('transaction failed') ? "Transaction Failed" : 
+                        errorApprovingTransaction.includes("user rejected transaction") ? "Transaction Rejected" : "Transaction Not Approved"
+                      }
                 body={
                   "No funds were debited. Please verify the transaction<br>details and try again."
                 }
@@ -668,12 +675,12 @@ export function SolanaBridgePage() {
               ) : (
                 <Button
                   type={3}
-                  className={walletAddress ?"mx-auto w-full !bg-grey-light !text-white" :"mx-auto w-full"}
+                  className={walletAddress ? "mx-auto w-full !bg-grey-light !text-white" : "mx-auto w-full"}
                   onClick={showConnectModal}
                   disabled={!!walletAddress}
                 >
-                {!walletAddress ? <> <ConnectSvg />  Connect Wallet </>  : <>Connected</>}
-                 
+                  {!walletAddress ? <> <ConnectSvg />  Connect Wallet </> : <>Connected</>}
+
                 </Button>
               )}
               <div className="flex flex-col gap-[8px]">
