@@ -20,6 +20,7 @@ import { ReactComponent as SwitchVerticalIcon } from "src/assets/img/icons/switc
 import { ReactComponent as WalletGreyIcon } from "src/assets/img/icons/wallet-grey.svg";
 import { useWallet } from "src/contexts/WalletContext";
 import { useApproveTransaction } from "src/hooks/useApproveTransaction";
+import  useNetworkSelector from "src/hooks/useNetworkSelector";
 import { useQuote } from "src/hooks/useQuote";
 import { useSwapStatus } from "src/hooks/useSwapStatus";
 import { formatAddress, getTxnLink } from "src/utils/helpers";
@@ -56,6 +57,7 @@ const fromTokenData = [
   {
     chainName: "Ethereum",
     chainSymbol: "ETH",
+    chainId:1,
     chainImageName: "Ethereum",
     tokens: [
       {
@@ -82,6 +84,7 @@ const fromTokenData = [
   {
     chainName: "BNB",
     chainSymbol: "BSC",
+    chainId:56,
     chainImageName: "BNB Chain",
     tokens: [
       {
@@ -102,6 +105,7 @@ const fromTokenData = [
   {
     chainName: "Polygon",
     chainSymbol: "POL",
+    chainId:137,
     chainImageName: "Polygon",
     tokens: [
       {
@@ -122,6 +126,7 @@ const fromTokenData = [
   {
     chainName: "Arbitrum",
     chainSymbol: "ARB",
+    chainId:42161,
     chainImageName: "Arbitrum",
     tokens: [
       {
@@ -142,6 +147,7 @@ const fromTokenData = [
   {
     chainName: "Optimism",
     chainSymbol: "OPT",
+    chainId:300,
     chainImageName: "Optimism",
     tokens: [
       {
@@ -162,6 +168,7 @@ const fromTokenData = [
   {
     chainName: "Avalanche",
     chainSymbol: "AVA",
+    chainId:43114,
     chainImageName: "Avalanche",
     tokens: [
       {
@@ -247,6 +254,8 @@ export function SolanaBridgePage() {
     fromChainTxnHash,
   } = useApproveTransaction();
 
+  const { getNetworkId, setWalletNetwork,networkChanged,networkChangeError}  = useNetworkSelector();
+
   const {
     status: swapStatus,
     substatus: swapSubstatus,
@@ -284,25 +293,35 @@ export function SolanaBridgePage() {
   };
   const handleApprove = async () => {
     if (!quote?.transactionRequest) return;
-    console.log("transaction request:", quote?.transactionRequest);
-    approveTransaction({
-      tx: quote?.transactionRequest,
-      fromToken:
-        fromTokenData[fromChainIndex].tokens[fromTokenIndex].tokenAddress,
-      fromAmount: ethers.utils.parseUnits(
-        fromAmount,
-        fromTokenData[fromChainIndex].tokens[fromTokenIndex].decimals
-      ),
-    });
-  };
+
+    const networkId = await getNetworkId();
+    if(networkId !== fromTokenData[fromChainIndex].chainId){
+
+      setWalletNetwork(fromTokenData[fromChainIndex].chainId);
+
+    } else {
+
+      approveTransaction({
+        tx: quote?.transactionRequest,
+        fromToken:
+          fromTokenData[fromChainIndex].tokens[fromTokenIndex].tokenAddress,
+        fromAmount: ethers.utils.parseUnits(
+          fromAmount,
+          fromTokenData[fromChainIndex].tokens[fromTokenIndex].decimals
+        ),
+      });
+    };
+
+    }
+  
   const handleResetSwap = () => {
     resetQuote();
     resetSwapStatus();
   };
 
   useEffect(()=>{
-      if(swapStatus === SwapStatus.DONE) handleResetSwap();
-  },[swapStatus])
+      if(swapStatus === SwapStatus.DONE || networkChangeError) handleResetSwap();
+  },[swapStatus,networkChangeError])
 
   useEffect(() => {
 
