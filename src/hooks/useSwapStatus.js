@@ -37,7 +37,7 @@ export function useSwapStatus() {
 
     } catch (e) {
       resetStatus();
-      clearInterval(interval);
+      clearTimeout(timeout);
     }
   }
 
