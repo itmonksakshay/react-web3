@@ -7,6 +7,7 @@ import { useModal } from "src/contexts/ModalContext";
 import { Footer } from "src/layout/Footer";
 import { Header } from "src/layout/Header";
 import { HexagonTickIcon } from "../../components/icons/HexagonTickIcon";
+import ApproveTransaction from "./components/ApproveTransaction";
 
 import { ethers } from "ethers";
 import { useEffect, useRef, useState } from "react";
@@ -19,6 +20,7 @@ import { ReactComponent as InfoSvg } from "src/assets/img/icons/info.svg";
 import { ReactComponent as SwitchVerticalIcon } from "src/assets/img/icons/switch-vertical.svg";
 import { ReactComponent as WalletGreyIcon } from "src/assets/img/icons/wallet-grey.svg";
 import { useWallet } from "src/contexts/WalletContext";
+import useNetworkSelector from "src/hooks/useNetworkSelector";
 import { useApproveTransaction } from "src/hooks/useApproveTransaction";
 import { useQuote } from "src/hooks/useQuote";
 import { useSwapStatus } from "src/hooks/useSwapStatus";
@@ -56,6 +58,7 @@ const fromTokenData = [
   {
     chainName: "Ethereum",
     chainSymbol: "ETH",
+    chainId: 1,
     chainImageName: "Ethereum",
     tokens: [
       {
@@ -82,6 +85,7 @@ const fromTokenData = [
   {
     chainName: "BNB",
     chainSymbol: "BSC",
+    chainId: 56,
     chainImageName: "BNB Chain",
     tokens: [
       {
@@ -102,6 +106,7 @@ const fromTokenData = [
   {
     chainName: "Polygon",
     chainSymbol: "POL",
+    chainId: 137,
     chainImageName: "Polygon",
     tokens: [
       {
@@ -122,6 +127,7 @@ const fromTokenData = [
   {
     chainName: "Arbitrum",
     chainSymbol: "ARB",
+    chainId: 42161,
     chainImageName: "Arbitrum",
     tokens: [
       {
@@ -142,6 +148,7 @@ const fromTokenData = [
   {
     chainName: "Optimism",
     chainSymbol: "OPT",
+    chainId: 300,
     chainImageName: "Optimism",
     tokens: [
       {
@@ -162,6 +169,7 @@ const fromTokenData = [
   {
     chainName: "Avalanche",
     chainSymbol: "AVA",
+    chainId: 43114,
     chainImageName: "Avalanche",
     tokens: [
       {
@@ -224,6 +232,7 @@ export function SolanaBridgePage() {
   const [toTokenIndex, setToTokenIndex] = useState(1);
   const [toAddress, setToAddress] = useState("");
   const [solanaAddressError, setSolanaAddressError] = useState(false);
+  const [transactionStatus,setTransactionStatus] = useState({txHash:"",error:false})
 
   const [debouncedFromAmount] = useDebounce(fromAmount, 500);
 
@@ -240,31 +249,52 @@ export function SolanaBridgePage() {
   } = useQuote();
 
   const {
-    run: approveTransaction,
     success: txnSuccess,
-    error: errorApprovingTransaction,
-    loading: isApprovingTransaction,
+    resetError,
+    error:transactionError,
+    setTransactionApproveError,
     fromChainTxnHash,
   } = useApproveTransaction();
+
+  const { getNetworkId, setWalletNetwork, networkChanged, networkChangeError } = useNetworkSelector();
 
   const {
     status: swapStatus,
     substatus: swapSubstatus,
     resetStatus: resetSwapStatus,
-  } = useSwapStatus({
-    txnHash: txnSuccess ? fromChainTxnHash : "",
-  });
+    getransactionStatus
+  } = useSwapStatus();
+
+
+  useEffect(()=>{
+
+    if(transactionStatus.txHash.length){
+      getransactionStatus(transactionStatus.txHash);
+    }
+  },[transactionStatus ]);
 
   const showConnectModal = () => showModal(ModalType.ConnectModal);
   const handleDisconnect = () => {
     disconnect();
     closeModal();
   };
-  const handleFromTokenSelect = (chainIndex, tokenIndex) => {
-    setFromChainIndex(chainIndex);
-    setFromTokenIndex(tokenIndex);
-    setShowingFromTokenSelectModal(false);
+  const handleFromTokenSelect = async (chainIndex, tokenIndex) => {
+
+    const networkId = await getNetworkId();
+    if (networkId !== fromTokenData[chainIndex].chainId) {
+      const status = await setWalletNetwork(fromTokenData[chainIndex].chainId);
+      if (status) {
+        setFromChainIndex(chainIndex);
+        setFromTokenIndex(tokenIndex);
+        setShowingFromTokenSelectModal(false);
+      }
+    } else {
+      setFromChainIndex(chainIndex);
+      setFromTokenIndex(tokenIndex);
+      setShowingFromTokenSelectModal(false);
+    }
   };
+
   const handleToTokenSelect = (chainIndex, tokenIndex) => {
     setToChainIndex(chainIndex);
     setToTokenIndex(tokenIndex);
@@ -282,23 +312,20 @@ export function SolanaBridgePage() {
       toAddressInputRef.current?.focus();
     }, 0);
   };
-  const handleApprove = async () => {
-    if (!quote?.transactionRequest) return;
-    console.log("transaction request:", quote?.transactionRequest);
-    approveTransaction({
-      tx: quote?.transactionRequest,
-      fromToken:
-        fromTokenData[fromChainIndex].tokens[fromTokenIndex].tokenAddress,
-      fromAmount: ethers.utils.parseUnits(
-        fromAmount,
-        fromTokenData[fromChainIndex].tokens[fromTokenIndex].decimals
-      ),
-    });
-  };
+
+
   const handleResetSwap = () => {
     resetQuote();
     resetSwapStatus();
+    resetError("");
+    setTransactionApproveError("");
+    setFromChainIndex(0);
+    setFromTokenIndex(1);
   };
+
+  useEffect(() => {
+    if (swapStatus === SwapStatus.DONE || networkChangeError || transactionStatus.status) handleResetSwap();
+  }, [swapStatus, networkChangeError,transactionStatus])
 
   useEffect(() => {
 
@@ -309,11 +336,12 @@ export function SolanaBridgePage() {
 
       const transferFee = ethers.utils.formatUnits(amount, quote?.estimate?.gasCosts[0]?.token?.decimals || 18);
       const estimateTime = Number(quote?.estimate?.executionDuration || 1) / 60;
- 
-      setQuoteInfo((value) => ({ ...value, 
-        gasFee: { ...value.gasFee, value: `$${gasCost}` }, 
-        transferFee: { ...value.transferFee, value: `${transferFee.substring(0,8)} ${coinSymbol}` }, 
-        estimateTime: {...value.estimateTime,value: `${Math.floor(estimateTime)} mins`}
+
+      setQuoteInfo((value) => ({
+        ...value,
+        gasFee: { ...value.gasFee, value: `$${gasCost}` },
+        transferFee: { ...value.transferFee, value: `${transferFee.substring(0, 8)} ${coinSymbol}` },
+        estimateTime: { ...value.estimateTime, value: `${Math.floor(estimateTime)} mins` }
       }))
     }
 
@@ -611,14 +639,6 @@ export function SolanaBridgePage() {
                     "No funds were debited. Please verify the transaction<br>details and try again. <a class='underline'>Click here to read a report</a>"
                   }
                 />
-              )}
-            {errorApprovingTransaction && (
-              <ErrorBox
-                title={"Transaction Not Approved"}
-                body={
-                  "No funds were debited. Please verify the transaction<br>details and try again."
-                }
-              />
             )}
             <div className="flex flex-col gap-[16px]">
               {swapStatus === SwapStatus.DONE ? (
@@ -647,34 +667,20 @@ export function SolanaBridgePage() {
                   <Loader.MoonLoader color="black" size={24} />
                 </Button>
               ) : provider && quote?.transactionRequest ? (
+                <ApproveTransaction
+                  fromToken={fromTokenData[fromChainIndex].tokens[fromTokenIndex].tokenAddress}
+                  fromAmount={ethers.utils.parseUnits(fromAmount, fromTokenData[fromChainIndex].tokens[fromTokenIndex].decimals)}
+                  transactionRequest={quote.transactionRequest}
+                  setTransactionStatus={setTransactionStatus}
+                />) : (
                 <Button
                   type={3}
-                  className="mx-auto w-full"
-                  onClick={handleApprove}
-                  disabled={isApprovingTransaction}
-                >
-                  {isApprovingTransaction ||
-                    swapStatus === SwapStatus.PENDING ? (
-                    <>
-                      Transaction Pending
-                      <Loader.MoonLoader color="black" size={24} />
-                    </>
-                  ) : (
-                    <>
-                      <ConnectedSvg2 />
-                      Approve
-                    </>
-                  )}
-                </Button>
-              ) : (
-                <Button
-                  type={3}
-                  className="mx-auto w-full"
+                  className={walletAddress ? "mx-auto w-full !bg-grey-light !text-white" : "mx-auto w-full"}
                   onClick={showConnectModal}
                   disabled={!!walletAddress}
                 >
-                  <ConnectSvg />
-                  Connect Wallet
+                  {!walletAddress ? <> <ConnectSvg />  Connect Wallet </> : <>Connected</>}
+
                 </Button>
               )}
               <div className="flex flex-col gap-[8px]">

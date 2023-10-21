@@ -11,38 +11,38 @@ const getStatus = async (txHash) => {
   return result.data;
 };
 
-export function useSwapStatus({ txnHash }) {
+export function useSwapStatus() {
   const [status, setStatus] = useState(SwapStatus.NONE);
   const [substatus, setSubstatus] = useState(SwapSubstatus.NONE);
-
-  const txnHashRef = useRef();
 
   const resetStatus = useCallback(() => {
     setStatus(SwapStatus.NONE);
     setSubstatus(SwapStatus.NONE);
   }, []);
 
-  useEffect(() => {
-    txnHashRef.current = txnHash;
+  const getransactionStatus =(txnHash) => {
 
-    (async () => {
-      if (!txnHash) return;
-      let result;
-      do {
-        try {
+    let result = {status:SwapStatus.NONE};
+    try {
+      setInterval(async () => {
+
+        while (
+          result.status !== SwapStatus.DONE &&
+          result.status !== SwapStatus.FAILED
+        ) {
+
           result = await getStatus(txnHash);
-          if (txnHashRef.current !== txnHash) break;
           setStatus(result.status);
           setSubstatus(result.substatus);
-        } catch (e) {
-          if (txnHashRef.current !== txnHash) break;
-        }
-      } while (
-        result.status !== SwapStatus.DONE &&
-        result.status !== SwapStatus.FAILED
-      );
-    })();
-  }, [txnHash]);
 
-  return { status, substatus, resetStatus };
+        }
+
+      }, 2000);
+    } catch (e) {
+      resetStatus();
+    }
+
+  }
+
+return { status, substatus, resetStatus, getransactionStatus };
 }
