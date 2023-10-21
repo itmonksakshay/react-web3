@@ -20,23 +20,19 @@ export function useSwapStatus() {
     setSubstatus(SwapStatus.NONE);
   }, []);
 
-  const getransactionStatus = (txnHash) => {
+  const getransactionStatus = async(txnHash) => {
 
     let result = { status: SwapStatus.NONE,substatus: SwapStatus.NONE};
-    let interval;
+    let timeout;
     try {
 
-      interval = setInterval(async () => {
-
+      if (!timeout) {
         result = await getStatus(txnHash);
         setStatus(result.status);
         setSubstatus(result.substatus || '');
-
-      }, 2000);
-
-      if (result.status == SwapStatus.DONE &&
-        result.status == SwapStatus.FAILED) {
-        clearInterval(interval)
+        timeout = setTimeout(function() {
+          if(result.status !== SwapStatus.DONE && result.status !== SwapStatus.FAILED) timeout = undefined;
+        }, 2000);
       }
 
     } catch (e) {
