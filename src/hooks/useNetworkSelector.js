@@ -26,10 +26,12 @@ export default function useNetworkSelector(){
                 }
             });
             setNetworkStatus(true)
+            return true;
    
         }
         catch(e){
             setNetworkError(true)
+            return false;
 
         }
 
