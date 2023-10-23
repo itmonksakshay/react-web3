@@ -234,7 +234,7 @@ export function SolanaBridgePage() {
   const [toTokenIndex, setToTokenIndex] = useState(1);
   const [toAddress, setToAddress] = useState("");
   const [solanaAddressError, setSolanaAddressError] = useState(false);
-  const [transactionStatus, setTransactionStatus] = useState({ txHash: "", error: false })
+  const [transactionStatus, setTransactionStatus] = useState({ txHash: "", error: false,status:false })
 
   const [debouncedFromAmount] = useDebounce(fromAmount, 500);
 
@@ -403,7 +403,7 @@ export function SolanaBridgePage() {
       )}
         <div className="flex px-[24px] lg:px-[64px] animate-fadeIn">
           <div className="flex flex-col gap-[32px] mt-[48px] lg:xl-[145px] mx-auto p-[24px] shadow-xxl">
-            {swapStatus === SwapStatus.DONE ? (
+            {transactionStatus.status ? (
               <div className="flex flex-col gap-[14px] items-center">
                 <HexagonTickIcon
                   bgColor="#32CC86"

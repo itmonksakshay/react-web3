@@ -40,9 +40,15 @@ const ApproveTransaction = ({ fromToken, fromAmount, transactionRequest,setTrans
 
     useEffect(()=>{
         if(fromChainTxnHash.length){
-            setTransactionStatus({error:false,txHash:fromChainTxnHash})
+            setTransactionStatus({error:false,txHash:fromChainTxnHash,status:false})
         }
     },[fromChainTxnHash])
+
+    useEffect(()=>{
+        if(txnSuccess){
+            setTransactionStatus({error:false,txHash:fromChainTxnHash,status:true})
+        }
+    },[txnSuccess])
 
     const handleApprove = async () => {
 
