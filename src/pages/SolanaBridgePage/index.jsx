@@ -8,6 +8,7 @@ import { Footer } from "src/layout/Footer";
 import { Header } from "src/layout/Header";
 import { HexagonTickIcon } from "../../components/icons/HexagonTickIcon";
 import ApproveTransaction from "./components/ApproveTransaction";
+import { Toast } from "src/components/Toast";
 
 import { ethers } from "ethers";
 import { useEffect, useRef, useState } from "react";
@@ -32,6 +33,7 @@ import { ErrorBox } from "./components/ErrorBox";
 import { TokenSelectControl } from "./components/TokenSelectControl";
 import { TokenSelectModal } from "./components/TokenSelectModal";
 import { TooltipContainer } from "src/components/Tooltip";
+import { useToast } from "src/contexts/ToastContext";
 
 const infoList = {
   transferFee: {
@@ -145,26 +147,26 @@ const fromTokenData = [
     ],
   },
   // Optimism
-  {
-    chainName: "Optimism",
-    chainSymbol: "OPT",
-    chainId: 300,
-    chainImageName: "Optimism",
-    tokens: [
-      {
-        tokenSymbol: "USDT",
-        tokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
-        tokenImageId: "27",
-        decimals: 6,
-      },
-      {
-        tokenSymbol: "USDC",
-        tokenAddress: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
-        tokenImageId: "15",
-        decimals: 6,
-      },
-    ],
-  },
+  // {
+  //   chainName: "Optimism",
+  //   chainSymbol: "OPT",
+  //   chainId: 300,
+  //   chainImageName: "Optimism",
+  //   tokens: [
+  //     {
+  //       tokenSymbol: "USDT",
+  //       tokenAddress: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58",
+  //       tokenImageId: "27",
+  //       decimals: 6,
+  //     },
+  //     {
+  //       tokenSymbol: "USDC",
+  //       tokenAddress: "0x0b2C639c533813f4Aa9D7837CAf62653d097Ff85",
+  //       tokenImageId: "15",
+  //       decimals: 6,
+  //     },
+  //   ],
+  // },
   // Avalanche
   {
     chainName: "Avalanche",
@@ -232,11 +234,13 @@ export function SolanaBridgePage() {
   const [toTokenIndex, setToTokenIndex] = useState(1);
   const [toAddress, setToAddress] = useState("");
   const [solanaAddressError, setSolanaAddressError] = useState(false);
-  const [transactionStatus,setTransactionStatus] = useState({txHash:"",error:false})
+  const [transactionStatus, setTransactionStatus] = useState({ txHash: "", error: false })
 
   const [debouncedFromAmount] = useDebounce(fromAmount, 500);
 
   const toAddressInputRef = useRef(null);
+
+  const { showingToast, showToast } = useToast();
 
   const [quoteInfo, setQuoteInfo] = useState(infoList);
 
@@ -251,7 +255,7 @@ export function SolanaBridgePage() {
   const {
     success: txnSuccess,
     resetError,
-    error:transactionError,
+    error: transactionError,
     setTransactionApproveError,
     fromChainTxnHash,
   } = useApproveTransaction();
@@ -266,12 +270,12 @@ export function SolanaBridgePage() {
   } = useSwapStatus();
 
 
-  useEffect(()=>{
+  useEffect(() => {
 
-    if(transactionStatus.txHash.length){
+    if (transactionStatus.txHash.length) {
       getransactionStatus(transactionStatus.txHash);
     }
-  },[transactionStatus ]);
+  }, [transactionStatus]);
 
   const showConnectModal = () => showModal(ModalType.ConnectModal);
   const handleDisconnect = () => {
@@ -287,6 +291,8 @@ export function SolanaBridgePage() {
         setFromChainIndex(chainIndex);
         setFromTokenIndex(tokenIndex);
         setShowingFromTokenSelectModal(false);
+      }else{
+        showToast();
       }
     } else {
       setFromChainIndex(chainIndex);
@@ -325,7 +331,7 @@ export function SolanaBridgePage() {
 
   useEffect(() => {
     if (swapStatus === SwapStatus.DONE || networkChangeError || transactionStatus.status) handleResetSwap();
-  }, [swapStatus, networkChangeError,transactionStatus])
+  }, [swapStatus, networkChangeError, transactionStatus])
 
   useEffect(() => {
 
@@ -384,8 +390,17 @@ export function SolanaBridgePage() {
 
   return (
     <>
+
       <div className="flex flex-col h-full">
         <Header />
+        {showingToast && (
+        <Toast
+          title="Network Change Request"
+          description="Denied"
+          IconSvg={ErrorHexagonSvg}
+          className="mt-[-24px] mb-[20px] lg:mb-0"
+        />
+      )}
         <div className="flex px-[24px] lg:px-[64px] animate-fadeIn">
           <div className="flex flex-col gap-[32px] mt-[48px] lg:xl-[145px] mx-auto p-[24px] shadow-xxl">
             {swapStatus === SwapStatus.DONE ? (
@@ -639,7 +654,7 @@ export function SolanaBridgePage() {
                     "No funds were debited. Please verify the transaction<br>details and try again. <a class='underline'>Click here to read a report</a>"
                   }
                 />
-            )}
+              )}
             <div className="flex flex-col gap-[16px]">
               {swapStatus === SwapStatus.DONE ? (
                 <div className="flex gap-[16px]">
