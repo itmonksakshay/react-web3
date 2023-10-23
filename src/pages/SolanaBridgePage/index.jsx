@@ -84,26 +84,26 @@ const fromTokenData = [
     ],
   },
   // BNB Chain
-  {
-    chainName: "BNB",
-    chainSymbol: "BSC",
-    chainId: 56,
-    chainImageName: "BNB Chain",
-    tokens: [
-      {
-        tokenSymbol: "USDT",
-        tokenAddress: "0x55d398326f99059fF775485246999027B3197955",
-        tokenImageId: "27",
-        decimals: 18,
-      },
-      {
-        tokenSymbol: "USDC",
-        tokenAddress: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
-        tokenImageId: "15",
-        decimals: 18,
-      },
-    ],
-  },
+  // {
+  //   chainName: "BNB",
+  //   chainSymbol: "BSC",
+  //   chainId: 56,
+  //   chainImageName: "BNB Chain",
+  //   tokens: [
+  //     {
+  //       tokenSymbol: "USDT",
+  //       tokenAddress: "0x55d398326f99059fF775485246999027B3197955",
+  //       tokenImageId: "27",
+  //       decimals: 18,
+  //     },
+  //     {
+  //       tokenSymbol: "USDC",
+  //       tokenAddress: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d",
+  //       tokenImageId: "15",
+  //       decimals: 18,
+  //     },
+  //   ],
+  // },
   // Polygon
   {
     chainName: "Polygon",
@@ -126,26 +126,26 @@ const fromTokenData = [
     ],
   },
   // Arbitrum
-  {
-    chainName: "Arbitrum",
-    chainSymbol: "ARB",
-    chainId: 42161,
-    chainImageName: "Arbitrum",
-    tokens: [
-      {
-        tokenSymbol: "USDT",
-        tokenAddress: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
-        tokenImageId: "27",
-        decimals: 6,
-      },
-      {
-        tokenSymbol: "USDC",
-        tokenAddress: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
-        tokenImageId: "15",
-        decimals: 6,
-      },
-    ],
-  },
+  // {
+  //   chainName: "Arbitrum",
+  //   chainSymbol: "ARB",
+  //   chainId: 42161,
+  //   chainImageName: "Arbitrum",
+  //   tokens: [
+  //     {
+  //       tokenSymbol: "USDT",
+  //       tokenAddress: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9",
+  //       tokenImageId: "27",
+  //       decimals: 6,
+  //     },
+  //     {
+  //       tokenSymbol: "USDC",
+  //       tokenAddress: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+  //       tokenImageId: "15",
+  //       decimals: 6,
+  //     },
+  //   ],
+  // },
   // Optimism
   // {
   //   chainName: "Optimism",
@@ -168,26 +168,26 @@ const fromTokenData = [
   //   ],
   // },
   // Avalanche
-  {
-    chainName: "Avalanche",
-    chainSymbol: "AVA",
-    chainId: 43114,
-    chainImageName: "Avalanche",
-    tokens: [
-      {
-        tokenSymbol: "USDT",
-        tokenAddress: "0xffd50AF15e52e6cF177f5888Dd32966C405A8eCC",
-        tokenImageId: "27",
-        decimals: 18,
-      },
-      {
-        tokenSymbol: "USDC",
-        tokenAddress: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
-        tokenImageId: "15",
-        decimals: 6,
-      },
-    ],
-  },
+  // {
+  //   chainName: "Avalanche",
+  //   chainSymbol: "AVA",
+  //   chainId: 43114,
+  //   chainImageName: "Avalanche",
+  //   tokens: [
+  //     {
+  //       tokenSymbol: "USDT",
+  //       tokenAddress: "0xffd50AF15e52e6cF177f5888Dd32966C405A8eCC",
+  //       tokenImageId: "27",
+  //       decimals: 18,
+  //     },
+  //     {
+  //       tokenSymbol: "USDC",
+  //       tokenAddress: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E",
+  //       tokenImageId: "15",
+  //       decimals: 6,
+  //     },
+  //   ],
+  // },
 ];
 
 const toTokenData = [

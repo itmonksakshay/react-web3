@@ -91,13 +91,12 @@ export default function useNetworkSelector() {
 
     const setWalletNetwork = useCallback(async (networkId) => {
 
-        const chainId = ethers.utils.hexlify(networkId)
-
+        const chainId = ethers.utils.hexlify(networkId);
         try {
             setNetworkError(false);
             setNetworkStatus(false);
 
-            await provider.send('wallet_switchEthereumChain', [{ chainId }]);
+            await provider.send('wallet_switchEthereumChain', [{ chainId:chainId ==='0x01'?'0x1':chainId }]);
             provider.on("network", (newNetwork, oldNetwork) => {
                 if (oldNetwork) {
                     window.location.reload();
