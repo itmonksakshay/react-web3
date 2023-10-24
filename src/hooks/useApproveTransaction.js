@@ -24,6 +24,8 @@ export function useApproveTransaction() {
       console.log("no provider");
       return;
     }
+
+    
     try {
       setError("")
       setApprovalLoading(true);
@@ -87,6 +89,7 @@ export function useApproveTransaction() {
     fromChainTxnHash,
     resetError:
     setError,
+    setSuccess,
     setTransactionApproveError,
     approvalLoading,
     approveTransaction,

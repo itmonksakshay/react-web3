@@ -12,32 +12,41 @@ const getStatus = async (txHash) => {
 };
 
 export function useSwapStatus() {
-  const [status, setStatus] = useState(SwapStatus.NONE);
+  const [status, setStatus] = useState({status:SwapStatus.NONE,flag:false});
   const [substatus, setSubstatus] = useState(SwapSubstatus.NONE);
+  const throttling = useRef(null)
 
   const resetStatus = useCallback(() => {
     setStatus(SwapStatus.NONE);
     setSubstatus(SwapStatus.NONE);
   }, []);
 
-  const getransactionStatus = async(txnHash) => {
+  const getransactionStatus = async (txnHash) => {
 
-    let result = { status: SwapStatus.NONE,substatus: SwapStatus.NONE};
-    let timeout;
-    try {
+    if (txnHash.length) {
 
-      if (!timeout) {
-        result = await getStatus(txnHash);
-        setStatus(result.status);
-        setSubstatus(result.substatus || '');
-        timeout = setTimeout(function() {
-          if(result.status !== SwapStatus.DONE && result.status !== SwapStatus.FAILED) timeout = undefined;
-        }, 2000);
+      if (throttling.current) {
+        clearTimeout(throttling.current);
+        throttling.current = null
+        return;
+  
       }
 
-    } catch (e) {
-      resetStatus();
-      clearTimeout(timeout);
+      if(SwapStatus.DONE === status){
+        return;
+      }
+
+      try {
+        throttling.current = setTimeout(async () => {
+
+              const result = await getStatus(txnHash);
+              setStatus((value)=>({status:result.status,flag:!value.flag}));
+              setSubstatus(result.substatusMessage || '');
+            }, 20000);
+            console.log(throttling.current);
+        } catch (e) {
+        resetStatus();
+      }
     }
   }
 
