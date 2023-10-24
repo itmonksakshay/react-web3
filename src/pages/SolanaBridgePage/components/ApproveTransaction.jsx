@@ -6,7 +6,7 @@ import { Button } from "src/components/lib";
 import { ErrorBox } from "./ErrorBox";
 import { SwapStatus } from 'src/constants/enums';
 
-const ApproveTransaction = ({ fromToken, fromAmount, transactionRequest, setTransactionStatus }) => {
+const ApproveTransaction = ({ fromToken, fromAmount, transactionRequest, setTransactionStatus,isReset }) => {
 
     const [details, setDetails] = useState({ fromToken, fromAmount, transactionRequest });
 
@@ -23,6 +23,7 @@ const ApproveTransaction = ({ fromToken, fromAmount, transactionRequest, setTran
         success: txnSuccess,
         error: errorConfirmingTransaction,
         resetError,
+        setSuccess,
         loading: isConfirmingTransaction,
         fromChainTxnHash,
         approvalLoading: isApprovingTransaction,
@@ -31,6 +32,10 @@ const ApproveTransaction = ({ fromToken, fromAmount, transactionRequest, setTran
         transactionApproveError
     } = useApproveTransaction();
 
+
+    useEffect(()=>{
+        if(isReset)setSuccess(false);
+    },[isReset])
 
 
     useEffect(() => {

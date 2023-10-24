@@ -236,6 +236,7 @@ export function SolanaBridgePage() {
   const [toAddress, setToAddress] = useState("");
   const [solanaAddressError, setSolanaAddressError] = useState(false);
   const [transactionStatus, setTransactionStatus] = useState({ txHash: "", error: false, status: false })
+  const [isTransactionReset,resetTransaction] = useState(false);
 
   const [debouncedFromAmount] = useDebounce(fromAmount, 500);
 
@@ -345,7 +346,11 @@ export function SolanaBridgePage() {
   }, [transactionStatus, swapStatus])
 
   useEffect(() => {
-    if (swapStatus.status === SwapStatus.DONE || networkChangeError) handleResetSwap();
+    if (swapStatus.status === SwapStatus.DONE || networkChangeError){
+
+      handleResetSwap();
+      resetTransaction(true);
+    } 
   }, [swapStatus, networkChangeError, transactionStatus])
 
   useEffect(() => {
@@ -702,6 +707,7 @@ export function SolanaBridgePage() {
                   fromAmount={ethers.utils.parseUnits(fromAmount, fromTokenData[fromChainIndex].tokens[fromTokenIndex].decimals)}
                   transactionRequest={quote.transactionRequest}
                   setTransactionStatus={setTransactionStatus}
+                  isReset={isTransactionReset}
                 />) : (
                 <Button
                   type={3}

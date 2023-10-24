@@ -89,6 +89,7 @@ export function useApproveTransaction() {
     fromChainTxnHash,
     resetError:
     setError,
+    setSuccess,
     setTransactionApproveError,
     approvalLoading,
     approveTransaction,
