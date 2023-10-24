@@ -24,6 +24,8 @@ export function useApproveTransaction() {
       console.log("no provider");
       return;
     }
+
+    
     try {
       setError("")
       setApprovalLoading(true);

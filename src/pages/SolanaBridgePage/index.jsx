@@ -17,6 +17,7 @@ import { ReactComponent as ConnectSvg } from "src/assets/img/icons/connect.svg";
 import { ReactComponent as ConnectedSvg } from "src/assets/img/icons/connected.svg";
 import { ReactComponent as ConnectedSvg2 } from "src/assets/img/icons/connected2.svg";
 import { ReactComponent as ErrorHexagonSvg } from "src/assets/img/icons/hexagon-error.svg";
+import { ReactComponent as ConfirmHexagonSvg } from "src/assets/img/icons/confirm-hexagon.svg";
 import { ReactComponent as InfoSvg } from "src/assets/img/icons/info.svg";
 import { ReactComponent as SwitchVerticalIcon } from "src/assets/img/icons/switch-vertical.svg";
 import { ReactComponent as WalletGreyIcon } from "src/assets/img/icons/wallet-grey.svg";
@@ -234,13 +235,14 @@ export function SolanaBridgePage() {
   const [toTokenIndex, setToTokenIndex] = useState(1);
   const [toAddress, setToAddress] = useState("");
   const [solanaAddressError, setSolanaAddressError] = useState(false);
-  const [transactionStatus, setTransactionStatus] = useState({ txHash: "", error: false,status:false })
+  const [transactionStatus, setTransactionStatus] = useState({ txHash: "", error: false, status: false })
 
   const [debouncedFromAmount] = useDebounce(fromAmount, 500);
 
   const toAddressInputRef = useRef(null);
 
   const { showingToast, showToast } = useToast();
+  const [toastMessage, setToastMessage] = useState({ title: "", subTitle: "", status: false, icon: "" })
 
   const [quoteInfo, setQuoteInfo] = useState(infoList);
 
@@ -269,14 +271,6 @@ export function SolanaBridgePage() {
     getransactionStatus
   } = useSwapStatus();
 
-
-  useEffect(() => {
-
-    if (transactionStatus.txHash.length) {
-      getransactionStatus(transactionStatus.txHash);
-    }
-  }, [transactionStatus]);
-
   const showConnectModal = () => showModal(ModalType.ConnectModal);
   const handleDisconnect = () => {
     disconnect();
@@ -291,8 +285,8 @@ export function SolanaBridgePage() {
         setFromChainIndex(chainIndex);
         setFromTokenIndex(tokenIndex);
         setShowingFromTokenSelectModal(false);
-      }else{
-        showToast();
+      } else {
+        setToastMessage({ title: "Network Change Request", subTitle: "Denied", icon: "network", status: true });
       }
     } else {
       setFromChainIndex(chainIndex);
@@ -330,7 +324,28 @@ export function SolanaBridgePage() {
   };
 
   useEffect(() => {
-    if (swapStatus === SwapStatus.DONE || networkChangeError || transactionStatus.status) handleResetSwap();
+    if (toastMessage.status) {
+      showToast();
+      setToastMessage((value) => ({ ...value, status: false }))
+    }
+  }, [toastMessage])
+
+  useEffect(() => {
+
+    if (transactionStatus.status) {
+      setToastMessage({ title: "Transaction Confirmed", subTitle: "status: Pending", icon: "transaction", status: true });
+    }
+  }, [transactionStatus])
+
+  useEffect(() => {
+
+    if (transactionStatus.status && transactionStatus.txHash.length && swapStatus.status !== SwapStatus.DONE) {
+      getransactionStatus(transactionStatus.txHash);
+    }
+  }, [transactionStatus, swapStatus])
+
+  useEffect(() => {
+    if (swapStatus.status === SwapStatus.DONE || networkChangeError) handleResetSwap();
   }, [swapStatus, networkChangeError, transactionStatus])
 
   useEffect(() => {
@@ -394,16 +409,16 @@ export function SolanaBridgePage() {
       <div className="flex flex-col h-full">
         <Header />
         {showingToast && (
-        <Toast
-          title="Network Change Request"
-          description="Denied"
-          IconSvg={ErrorHexagonSvg}
-          className="mt-[-24px] mb-[20px] lg:mb-0"
-        />
-      )}
+          <Toast
+            title={toastMessage.title}
+            description={toastMessage.subTitle}
+            IconSvg={toastMessage.icon === "transaction" ? ConfirmHexagonSvg : ErrorHexagonSvg}
+            className="mt-[-24px] mb-[20px] lg:mb-0"
+          />
+        )}
         <div className="flex px-[24px] lg:px-[64px] animate-fadeIn">
           <div className="flex flex-col gap-[32px] mt-[48px] lg:xl-[145px] mx-auto p-[24px] shadow-xxl">
-            {transactionStatus.status ? (
+            {swapStatus.status === SwapStatus.DONE ? (
               <div className="flex flex-col gap-[14px] items-center">
                 <HexagonTickIcon
                   bgColor="#32CC86"
@@ -415,7 +430,7 @@ export function SolanaBridgePage() {
                   Transaction Success
                 </h3>
               </div>
-            ) : swapStatus === SwapStatus.FAILED ? (
+            ) : swapStatus.status === SwapStatus.FAILED ? (
               <div className="flex flex-col gap-[14px] items-center">
                 <ErrorHexagonSvg width={76.26} height={69} />
                 <h3 className="text-[32px] leading-[1.1] text-grey-dark">
@@ -428,10 +443,10 @@ export function SolanaBridgePage() {
               </h3>
             )}
             <div className="flex flex-col gap-[17px]">
-              {swapStatus === SwapStatus.DONE ||
-                swapStatus === SwapStatus.FAILED ||
-                swapStatus === SwapStatus.INVALID ||
-                swapStatus === SwapStatus.NOT_FOUND ? (
+              {swapStatus.status === SwapStatus.DONE ||
+                swapStatus.status === SwapStatus.FAILED ||
+                swapStatus.status === SwapStatus.INVALID ||
+                swapStatus.status === SwapStatus.NOT_FOUND ? (
                 <>
                   <div className="flex items-center">
                     <AssetWithChain
@@ -645,9 +660,9 @@ export function SolanaBridgePage() {
                 </>
               )}
             </div>
-            {(swapStatus === SwapStatus.FAILED ||
-              swapStatus === SwapStatus.INVALID ||
-              swapStatus === SwapStatus.NOT_FOUND) && (
+            {(swapStatus.status === SwapStatus.FAILED ||
+              swapStatus.status === SwapStatus.INVALID ||
+              swapStatus.status === SwapStatus.NOT_FOUND) && (
                 <ErrorBox
                   title={"Something went wrong"}
                   body={
@@ -656,7 +671,7 @@ export function SolanaBridgePage() {
                 />
               )}
             <div className="flex flex-col gap-[16px]">
-              {swapStatus === SwapStatus.DONE ? (
+              {swapStatus.status === SwapStatus.DONE ? (
                 <div className="flex gap-[16px]">
                   <Button
                     isLink
@@ -673,7 +688,7 @@ export function SolanaBridgePage() {
                     View on {toTokenData[toChainIndex].chainName}
                   </Button>
                 </div>
-              ) : swapStatus === SwapStatus.FAILED ? (
+              ) : swapStatus.status === SwapStatus.FAILED ? (
                 <Button type={3} className="w-full" onClick={handleResetSwap}>
                   Start Again
                 </Button>
@@ -698,7 +713,7 @@ export function SolanaBridgePage() {
 
                 </Button>
               )}
-              <div className="flex flex-col gap-[8px]">
+              {swapStatus.status === SwapStatus.NONE ? <div className="flex flex-col gap-[8px]">
                 {Object.entries(quoteInfo).map(([key, { value, tooltip, label }]) => (<div key={label} className="flex items-center">
                   <TooltipContainer tooltipContent={tooltip}>
                     <div className="flex items-center group">
@@ -712,7 +727,18 @@ export function SolanaBridgePage() {
                     {value}
                   </p>
                 </div>))}
-              </div>
+              </div> : 
+              <div className="flex flex-col items-center">
+                <div className="flex items-center group">
+                  <p className="text-black text-[16px] font-bold">Status :&nbsp;</p>
+                  <p className="text-grey-deep text-[14px] leading-[1.25] font-normal group-hover:text-grey-black cursor-default mt-1">
+                    {swapStatus.status}
+                  </p>
+                </div>
+                <p className="text-grey-deep text-[14px] leading-[1.25] font-normal group-hover:text-grey-black cursor-default mt-1.25">
+                    {swapSubstatus}
+                  </p>
+              </div>}
             </div>
           </div>
         </div>
