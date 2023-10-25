@@ -16,6 +16,7 @@ export const ModalType = {
   RestartModal: "RestartModal",
   TermsModal: "TermsModal",
   WalletAnalyzeModal: "WalletAnalyzeModal",
+  SolanaAddressModal: "SolanaAddressModal"
 };
 
 export const SwapStatus = {
