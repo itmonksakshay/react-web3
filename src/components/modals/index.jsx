@@ -5,3 +5,4 @@ export * from "./JoinModal";
 export * from "./SkipModal";
 export * from "./ThanksModal";
 export * from "./TermsModal";
+export * from "./SolanaAddressModal";

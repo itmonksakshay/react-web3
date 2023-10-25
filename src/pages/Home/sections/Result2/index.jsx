@@ -48,6 +48,7 @@ import { CustomizePortfolio } from "./components/CustomizePortfolio";
 import { HowItWorks } from "./components/HowItWorks";
 import { PoolBox } from "../../../../components/PoolBox";
 import { RiskLevel } from "./components/RiskLevel";
+import { SolanaAddressModal } from "src/components/modals";
 
 const poolRiskMap = { A: 1, B: 2, C: 3, D: 4, F: 5 };
 
@@ -76,7 +77,7 @@ export function Result2({
   goBack,
   className,
 }) {
-  const { showModal } = useModal();
+  const { showModal,modalType } = useModal();
   const { walletAddress } = useWallet();
   const { showingToast, showToast } = useToast();
   const { isLoading: isSharing, twitterShare } = useTwitterShare();
@@ -87,6 +88,7 @@ export function Result2({
     riskScore: defaultAnalysis.risk_score,
   });
   const [hoveredIndex, setHoveredIndex] = useState(-1);
+  const [isSolanaFarmingModal, setSolanaFarmingModal] = useState(false);
 
   const customizingRef = useRef();
   const hoveredIndexRef = useRef();
@@ -254,6 +256,16 @@ export function Result2({
     [analysis.pool_data_updated_at]
   );
 
+  useEffect(()=>{
+
+    if(WAValidator.validate(walletAddress, "Solana")){
+
+      showModal(ModalType.SolanaAddressModal);
+
+    }  
+    
+    },[walletAddress])
+
   const handleTwitterShare = () => {
     twitterShare({
       chartDOM: chartRef.current,
@@ -308,6 +320,7 @@ export function Result2({
 
   return (
     <>
+      {modalType === ModalType.SolanaAddressModal && <SolanaAddressModal/>}
       <div
         className={`px-[24px] lg:px-[64px] py-[14px] ${className} animate-fadeIn`}
       >

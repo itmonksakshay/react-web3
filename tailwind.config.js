@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+const colors = require("tailwindcss/colors");
 module.exports = {
   content: ["./src/**/*.{js,jsx}"],
   darkMode: "class",
@@ -7,6 +8,7 @@ module.exports = {
       caption: ['"Tactic Round"', "sans-serif"],
       body: ["Aeroport", "sans-serif"],
       helvetica: ["Helvetica"],
+      tactic: ["Tactic Round"]
     },
     screens: {
       sm: "375px",
@@ -60,6 +62,7 @@ module.exports = {
           lightest: "#FFF6E2",
           darkest: "#644900",
           mild: "#FBF8F0",
+          modalYellow: "#E9BE5C",
         },
         grey: {
           dark: "#1E1E1E",
@@ -107,12 +110,14 @@ module.exports = {
         blue: {
           light: "#1DA1F2",
           dark: "#2488C6",
+          customblue1: "#0C192B"
         },
         purple: {
           light: "#5865F2",
           dark: "#3A45B6",
         },
       },
+
       keyframes: {
         ripple: {
           from: {
@@ -167,6 +172,11 @@ module.exports = {
         delayedFadeIn: "delayedFadeIn .6s ease-in-out",
         slideDown: "slideDown .3s ease-in-out",
       },
+      gradientcolorstops: theme => ({
+        'primary': '#ff8c00',
+        'secondary': '#ffa500',
+        'danger': '#ffd700',
+    }),
     },
   },
   plugins: [

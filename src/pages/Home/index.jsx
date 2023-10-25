@@ -207,6 +207,7 @@ export function Home({ isWalletAnalysisMode = false, isDemo = false }) {
 
   return (
     <>
+    
       <div
         className={`flex flex-col h-full ${
           modalType === ModalType.SkipModal ||
