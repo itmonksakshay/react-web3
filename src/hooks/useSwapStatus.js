@@ -17,7 +17,9 @@ export function useSwapStatus() {
   const throttling = useRef(null)
 
   const resetStatus = useCallback(() => {
-    setStatus(SwapStatus.NONE);
+    if(throttling.current)clearTimeout(throttling.current);
+    throttling.current = null;
+    setStatus((value)=>({status:SwapStatus.NONE,flag:value.flag}));
     setSubstatus(SwapStatus.NONE);
   }, []);
 
@@ -29,10 +31,9 @@ export function useSwapStatus() {
         clearTimeout(throttling.current);
         throttling.current = null
         return;
-  
       }
 
-      if(SwapStatus.DONE === status){
+      if(SwapStatus.DONE === status.status){
         return;
       }
 
