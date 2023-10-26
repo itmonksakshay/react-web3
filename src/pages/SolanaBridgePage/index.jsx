@@ -317,7 +317,6 @@ export function SolanaBridgePage() {
 
   const handleResetSwap = () => {
     resetQuote();
-    resetSwapStatus();
     resetError("");
     setTransactionApproveError("");
     setFromChainIndex(0);
@@ -340,10 +339,10 @@ export function SolanaBridgePage() {
 
   useEffect(() => {
 
-    if (transactionStatus.status && transactionStatus.txHash.length && swapStatus.status !== SwapStatus.DONE) {
+    if (transactionStatus.status && transactionStatus.txHash.length) {
       getransactionStatus(transactionStatus.txHash);
     }
-  }, [transactionStatus, swapStatus])
+  }, [transactionStatus,swapStatus])
 
   useEffect(() => {
     if (swapStatus.status === SwapStatus.DONE || networkChangeError){
@@ -351,7 +350,7 @@ export function SolanaBridgePage() {
       handleResetSwap();
       resetTransaction(true);
     } 
-  }, [swapStatus, networkChangeError, transactionStatus])
+  }, [swapStatus, networkChangeError])
 
   useEffect(() => {
 
@@ -734,14 +733,14 @@ export function SolanaBridgePage() {
                   </p>
                 </div>))}
               </div> : 
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col items-center w-full">
                 <div className="flex items-center group">
                   <p className="text-black text-[16px] font-bold">Status :&nbsp;</p>
                   <p className="text-grey-deep text-[14px] leading-[1.25] font-normal group-hover:text-grey-black cursor-default mt-1">
                     {swapStatus.status}
                   </p>
                 </div>
-                <p className="text-grey-deep text-[14px] leading-[1.25] font-normal group-hover:text-grey-black cursor-default mt-1.25">
+                <p className="text-grey-deep text-[14px] w-[410px] text-center border-box leading-[1.25] font-normal group-hover:text-grey-black cursor-default mt-1.25">
                     {swapSubstatus}
                   </p>
               </div>}
