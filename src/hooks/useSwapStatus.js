@@ -29,6 +29,7 @@ export function useSwapStatus() {
 
       if (throttling.current) {
         clearTimeout(throttling.current);
+        setStatus((value)=>({status:value.status,flag:!value.flag}))
         throttling.current = null
         return;
       }
