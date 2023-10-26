@@ -122,23 +122,23 @@ export function Result2({
 
   useEffect(() => {
 
-    if (WAValidator.validate(walletAddress, "Solana")) {
+    let timeout;
 
-      showModal(ModalType.SolanaAddressModal);
+    if (isMobileDevice()) return;
 
-    } else {
-
-      if (isMobileDevice()) return;
-      const timeout = setTimeout(() => {
-        if (!customizingRef.current && hoveredIndexRef.current === -1)
+    if (!customizingRef.current && hoveredIndexRef.current === -1) {
+      timeout = setTimeout(() => {
+        if (WAValidator.validate(walletAddress, "Solana")) {
+          showModal(ModalType.SolanaAddressModal);
+        } else {
           showModal(ModalType.JoinModal);
+        }
       }, 30000);
-      return () => {
-        clearTimeout(timeout);
-      };
     }
-
-}, [showModal]);
+    return () => {
+      if(timeout) clearTimeout(timeout);
+    };
+  },[showModal]);
 
 
 
