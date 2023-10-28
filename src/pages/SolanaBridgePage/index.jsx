@@ -319,8 +319,6 @@ export function SolanaBridgePage() {
     resetQuote();
     resetError("");
     setTransactionApproveError("");
-    setFromChainIndex(0);
-    setFromTokenIndex(1);
   };
 
   useEffect(() => {
